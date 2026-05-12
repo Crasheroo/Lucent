@@ -1,6 +1,6 @@
 {
-  "name": "Lucent",
-  "short_name": "Lucent",
+  "name": "MoneyTrack",
+  "short_name": "MoneyTrack",
   "description": "Twój osobisty asystent finansowy",
   "start_url": "/",
   "display": "standalone",

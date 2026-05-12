@@ -1,43 +1,91 @@
-import { AI_MODEL } from '../utils/constants.js'
+// Gemini API — darmowy tier (15 req/min)
+// Klucz: https://aistudio.google.com/apikey
+const GEMINI_MODEL = 'gemini-2.0-flash'
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
 
-// Na produkcji (GitHub Pages) ustaw VITE_API_URL na URL swojego Cloudflare Worker.
-// Lokalnie możesz użyć VITE_ANTHROPIC_API_KEY w pliku .env.local
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.anthropic.com/v1/messages'
+function getApiUrl(model) {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`
+}
 
-async function fetchClaude(body) {
-  const headers = { 'Content-Type': 'application/json' }
-  if (import.meta.env.VITE_ANTHROPIC_API_KEY) {
-    headers['x-api-key'] = import.meta.env.VITE_ANTHROPIC_API_KEY
-    headers['anthropic-version'] = '2023-06-01'
+async function fetchGemini(parts, systemPrompt = '') {
+  if (!API_KEY) throw new Error('Brak klucza API. Dodaj VITE_GEMINI_API_KEY do pliku .env.local')
+
+  const body = {
+    contents: [{ role: 'user', parts }],
+    generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
   }
-  const response = await fetch(API_URL, {
+
+  if (systemPrompt) {
+    body.systemInstruction = { parts: [{ text: systemPrompt }] }
+  }
+
+  const response = await fetch(getApiUrl(GEMINI_MODEL), {
     method: 'POST',
-    headers,
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  if (!response.ok) throw new Error(`API Error: ${response.status}`)
-  return response.json()
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error(err?.error?.message || `API Error: ${response.status}`)
+  }
+
+  const data = await response.json()
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+}
+
+// Konwertuje format wiadomości (user/assistant) na format Gemini (user/model)
+function convertMessages(messages) {
+  return messages.map((m) => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }))
 }
 
 export async function callClaude(messages, systemPrompt = '') {
-  const data = await fetchClaude({ model: AI_MODEL, max_tokens: 1000, system: systemPrompt, messages })
-  return data.content.map((b) => b.text || '').join('')
+  // Gemini wymaga żeby pierwsza i ostatnia wiadomość była od usera
+  // i żeby role się naprzemiennie zmieniały
+  const geminiMessages = convertMessages(messages)
+
+  const body = {
+    contents: geminiMessages,
+    generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
+  }
+
+  if (systemPrompt) {
+    body.systemInstruction = { parts: [{ text: systemPrompt }] }
+  }
+
+  const response = await fetch(getApiUrl(GEMINI_MODEL), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error(err?.error?.message || `API Error: ${response.status}`)
+  }
+
+  const data = await response.json()
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 }
 
 export async function analyzeReceipt(base64Image, mimeType = 'image/jpeg') {
-  const data = await fetchClaude({
-    model: AI_MODEL,
-    max_tokens: 1000,
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64Image } },
-        { type: 'text', text: 'Przeanalizuj ten paragon i zwróć TYLKO JSON: {"store":"nazwa","total":liczba,"date":"YYYY-MM-DD lub null","category":"food|transport|entertainment|health|shopping|restaurants|utilities|subscriptions|fitness|education|travel|other","items":[{"name":"nazwa","price":liczba}]}' },
-      ],
-    }],
-  })
-  const text = data.content.map((b) => b.text || '').join('')
-  try { return JSON.parse(text.replace(/```json|```/g, '').trim()) } catch { return null }
+  const text = await fetchGemini([
+    {
+      inlineData: { mimeType, data: base64Image },
+    },
+    {
+      text: 'Przeanalizuj ten paragon i zwróć TYLKO JSON (bez markdown, bez komentarzy): {"store":"nazwa sklepu","total":liczba,"date":"YYYY-MM-DD lub null","category":"food|transport|entertainment|health|shopping|restaurants|utilities|subscriptions|fitness|education|travel|other","items":[{"name":"nazwa","price":liczba}]}',
+    },
+  ])
+
+  try {
+    return JSON.parse(text.replace(/```json|```/g, '').trim())
+  } catch {
+    return null
+  }
 }
 
 export function buildFinancialContext(store) {
@@ -45,21 +93,29 @@ export function buildFinancialContext(store) {
   const monthExpenses = getCurrentMonthExpenses()
   const recurringTotal = getMonthlyRecurringTotal()
   const expensesTotal = monthExpenses.reduce((s, e) => s + e.amount, 0)
+
   const byCategory = {}
-  monthExpenses.forEach((e) => { byCategory[e.category] = (byCategory[e.category] || 0) + e.amount })
+  monthExpenses.forEach((e) => {
+    byCategory[e.category] = (byCategory[e.category] || 0) + e.amount
+  })
+
   const last3Months = []
   for (let i = 2; i >= 0; i--) {
-    const d = new Date(); d.setMonth(d.getMonth() - i)
+    const d = new Date()
+    d.setMonth(d.getMonth() - i)
     const m = d.getMonth(), y = d.getFullYear()
-    const total = expenses.filter((e) => { const ed = new Date(e.date); return ed.getMonth() === m && ed.getFullYear() === y }).reduce((s, e) => s + e.amount, 0)
+    const total = expenses
+      .filter((e) => { const ed = new Date(e.date); return ed.getMonth() === m && ed.getFullYear() === y })
+      .reduce((s, e) => s + e.amount, 0)
     last3Months.push({ month: d.toLocaleDateString('pl-PL', { month: 'long' }), total })
   }
-  return `Dane finansowe:
+
+  return `Dane finansowe użytkownika:
 - Wynagrodzenie netto: ${profile.salary} PLN/mies.
-- Stałe wydatki: ${recurringTotal.toFixed(2)} PLN
-- Wydatki ten miesiąc: ${expensesTotal.toFixed(2)} PLN
-- Zostało: ${(profile.salary - recurringTotal - expensesTotal).toFixed(2)} PLN
-- Kategorie: ${JSON.stringify(byCategory)}
+- Stałe wydatki miesięczne: ${recurringTotal.toFixed(2)} PLN
+- Wydatki w tym miesiącu: ${expensesTotal.toFixed(2)} PLN
+- Zostało do końca miesiąca: ${(profile.salary - recurringTotal - expensesTotal).toFixed(2)} PLN
+- Wydatki wg kategorii (ten miesiąc): ${JSON.stringify(byCategory)}
 - Ostatnie 3 miesiące: ${JSON.stringify(last3Months)}
-- Stałe płatności: ${recurring.filter((r) => r.active).map((r) => `${r.name}: ${r.amount} PLN`).join(', ')}`
+- Stałe płatności aktywne: ${recurring.filter((r) => r.active).map((r) => `${r.name}: ${r.amount} PLN`).join(', ')}`
 }

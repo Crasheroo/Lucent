@@ -1,4 +1,4 @@
-# 💰 Lucent
+# 💰 MoneyTrack
 
 Inteligentna aplikacja webowa do śledzenia wydatków z AI asystentem, inspirowana stylem Apple.
 
@@ -88,7 +88,7 @@ npm run preview
 ## 🗂️ Struktura projektu
 
 ```
-Lucent/
+moneytrack/
 ├── src/
 │   ├── pages/
 │   │   ├── Setup.jsx          # Onboarding

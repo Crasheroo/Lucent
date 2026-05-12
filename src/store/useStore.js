@@ -94,7 +94,7 @@ const useStore = create(
       },
     }),
     {
-      name: 'Lucent-storage',
+      name: 'moneytrack-storage',
       version: 1,
     }
   )
