@@ -11,6 +11,16 @@
     <title>Lucent</title>
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
+    <script>
+      // GitHub Pages SPA fix — przywróć ścieżkę po przekierowaniu z 404.html
+      (function() {
+        var redirect = new URLSearchParams(window.location.search).get('redirect');
+        if (redirect) {
+          var repo = '/lucent';
+          window.history.replaceState(null, null, repo + redirect);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
