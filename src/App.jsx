@@ -80,7 +80,7 @@ export default function App() {
     }
   }, [])
 
-  const basename = import.meta.env.PROD ? '/Bobi-Siano' : '/'
+  const basename = import.meta.env.PROD ? '/Lucent' : '/'
 
   return (
     <BrowserRouter basename={basename}>

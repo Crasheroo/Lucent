@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const REPO_NAME = 'Bobi-Siano'
+const REPO_NAME = 'Lucent'
 
 export default defineConfig({
   plugins: [react()],
