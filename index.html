@@ -15,6 +15,7 @@
             --green: #34c759;
             --red: #ff3b30;
             --orange: #ff9500;
+            --purple: #af52de;
             --border: #e5e5ea;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
             --shadow: 0 4px 20px rgba(0,0,0,0.06);
@@ -91,10 +92,24 @@
             justify-content: center;
             transition: all 0.15s;
             box-shadow: var(--shadow-sm);
+            position: relative;
         }
         .icon-btn:active {
             transform: scale(0.94);
             background: #f0f0f5;
+        }
+        .icon-btn .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--red);
+            color: #fff;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            text-align: center;
         }
 
         .month-scroll {
@@ -212,7 +227,7 @@
         .stat-income { color: var(--green); }
         .stat-expense { color: var(--red); }
 
-        /* ========== GOALS ========== */
+        /* ========== RECURRING SECTION ========== */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -235,6 +250,87 @@
         }
         .section-add:active { background: #e8f0fe; }
 
+        .recurring-scroll {
+            display: flex;
+            gap: 12px;
+            padding: 0 16px 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            min-height: 60px;
+            align-items: stretch;
+        }
+        .recurring-scroll::-webkit-scrollbar { display: none; }
+
+        .recurring-card {
+            min-width: 200px;
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+            border-left: 4px solid var(--purple);
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .recurring-card:active { transform: scale(0.97); }
+        .recurring-card.paid {
+            opacity: 0.6;
+            border-left-color: #ccc;
+        }
+        .recurring-card.paid .recurring-status {
+            background: var(--green);
+        }
+        .recurring-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        .recurring-name {
+            font-weight: 650;
+            font-size: 14px;
+        }
+        .recurring-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--red);
+            margin: 2px 0;
+        }
+        .recurring-date {
+            font-size: 11px;
+            color: var(--secondary);
+        }
+        .recurring-status {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--orange);
+            border: 2px solid #fff;
+        }
+        .recurring-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .recurring-btn {
+            flex: 1;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .recurring-btn:active { background: #f0f0f5; }
+        .recurring-btn.pay-now { color: var(--green); border-color: var(--green); }
+        .recurring-btn.skip { color: var(--secondary); }
+
+        /* ========== GOALS ========== */
         .goals-scroll {
             display: flex;
             gap: 12px;
@@ -298,7 +394,7 @@
 
         .empty-state {
             text-align: center;
-            padding: 30px;
+            padding: 20px 30px;
             color: var(--secondary);
             font-size: 14px;
             width: 100%;
@@ -311,20 +407,23 @@
             background: #e8e8ed;
             border-radius: 10px;
             padding: 3px;
+            flex-wrap: wrap;
         }
         .tab {
             flex: 1;
-            padding: 10px;
+            min-width: fit-content;
+            padding: 10px 8px;
             text-align: center;
             border-radius: 8px;
             font-weight: 550;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.2s;
             border: none;
             background: transparent;
             font-family: inherit;
             color: var(--text);
+            white-space: nowrap;
         }
         .tab.active {
             background: #fff;
@@ -394,6 +493,9 @@
             box-shadow: var(--shadow-sm);
             gap: 12px;
         }
+        .tx-item.recurring-tx {
+            border-left: 3px solid var(--purple);
+        }
         .tx-icon {
             width: 42px;
             height: 42px;
@@ -413,6 +515,16 @@
             text-overflow: ellipsis;
         }
         .tx-meta { font-size: 11px; color: var(--secondary); }
+        .tx-meta .recurring-badge {
+            display: inline-block;
+            background: #f0e6ff;
+            color: var(--purple);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
         .tx-amount {
             font-weight: 650;
             font-size: 16px;
@@ -480,6 +592,10 @@
             white-space: nowrap;
         }
         .fab-option:active { transform: scale(0.96); }
+        .fab-option.recurring-opt {
+            background: #f8f0ff;
+            color: var(--purple);
+        }
         .fab-main {
             width: 58px;
             height: 58px;
@@ -580,6 +696,30 @@
             gap: 10px;
         }
         .form-row .form-group { flex: 1; }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .toggle-option {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .toggle-option.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
         .btn {
             width: 100%;
             padding: 16px;
@@ -647,6 +787,8 @@
         @media (max-width: 380px) {
             .balance-amount { font-size: 34px; }
             .goal-card { min-width: 160px; }
+            .recurring-card { min-width: 170px; }
+            .tab { font-size: 11px; padding: 8px 6px; }
         }
     </style>
 </head>
@@ -687,6 +829,15 @@
         </div>
     </div>
 
+    <!-- Recurring Expenses -->
+    <div class="section-header">
+        <span class="section-title">🔄 Stałe wydatki</span>
+        <span class="section-add" onclick="openRecurringModal()">+ Dodaj</span>
+    </div>
+    <div class="recurring-scroll" id="recurringContainer">
+        <div class="empty-state">Nie masz jeszcze stałych wydatków. Dodaj pierwszy!</div>
+    </div>
+
     <!-- Goals -->
     <div class="section-header">
         <span class="section-title">🎯 Cele oszczędnościowe</span>
@@ -701,6 +852,7 @@
         <button class="tab active" data-tab="all">Wszystko</button>
         <button class="tab" data-tab="expenses">Wydatki</button>
         <button class="tab" data-tab="income">Przychody</button>
+        <button class="tab" data-tab="recurring">🔄 Stałe</button>
         <button class="tab" data-tab="chart">📊 Analiza</button>
     </div>
 
@@ -722,6 +874,7 @@
         <div class="fab-menu" id="fabMenu">
             <button class="fab-option" onclick="openModal('expense')">📉 Dodaj wydatek</button>
             <button class="fab-option" onclick="openModal('income')">📈 Dodaj przychód</button>
+            <button class="fab-option recurring-opt" onclick="openRecurringModal()">🔄 Dodaj stały wydatek</button>
         </div>
         <button class="fab-main" id="fabMain" onclick="toggleFab()">+</button>
     </div>
@@ -772,6 +925,45 @@
         </div>
     </div>
 
+    <!-- Recurring Modal -->
+    <div class="modal-overlay" id="recurringModal">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="modal-title">Dodaj stały wydatek</div>
+
+            <div class="form-group">
+                <label>Nazwa *</label>
+                <input type="text" id="recName" placeholder="np. Czynsz, Netflix, Rata kredytu...">
+            </div>
+            <div class="form-group">
+                <label>Kwota (PLN) *</label>
+                <input type="number" id="recAmount" placeholder="0.00" step="0.01" min="0.01" inputmode="decimal">
+            </div>
+            <div class="form-group">
+                <label>Kategoria</label>
+                <select id="recCategory">
+                    <option value="🏠 Mieszkanie">🏠 Mieszkanie</option>
+                    <option value="🎉 Subskrypcje">🎉 Subskrypcje</option>
+                    <option value="🚗 Transport">🚗 Transport</option>
+                    <option value="💊 Ubezpieczenie">💊 Ubezpieczenie</option>
+                    <option value="📚 Edukacja">📚 Edukacja</option>
+                    <option value="💸 Rata/Leasing">💸 Rata/Leasing</option>
+                    <option value="🛍️ Inne stałe">🛍️ Inne stałe</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Dzień miesiąca (1-31) *</label>
+                <input type="number" id="recDay" placeholder="np. 1, 10, 28" min="1" max="31" inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label>Emoji</label>
+                <input type="text" id="recEmoji" placeholder="🏠" maxlength="4">
+            </div>
+            <button class="btn btn-primary" onclick="saveRecurring()">Zapisz stały wydatek</button>
+            <button class="btn btn-ghost" onclick="closeModal('recurringModal')">Anuluj</button>
+        </div>
+    </div>
+
     <!-- Goal Modal -->
     <div class="modal-overlay" id="goalModal">
         <div class="modal-sheet">
@@ -803,7 +995,7 @@
 
     <script>
         // ==================== DATA LAYER ====================
-        const STORAGE_KEY = 'flowsave_v2_data';
+        const STORAGE_KEY = 'flowsave_v3_data';
 
         function loadData() {
             try {
@@ -814,14 +1006,15 @@
                         return {
                             transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
                             goals: Array.isArray(parsed.goals) ? parsed.goals : [],
-                            version: 2
+                            recurring: Array.isArray(parsed.recurring) ? parsed.recurring : [],
+                            version: 3
                         };
                     }
                 }
             } catch (e) {
                 console.warn('Błąd wczytywania danych, tworzę nowe.');
             }
-            return { transactions: [], goals: [], version: 2 };
+            return { transactions: [], goals: [], recurring: [], version: 3 };
         }
 
         function saveData() {
@@ -831,6 +1024,53 @@
         let appData = loadData();
         let currentTab = 'all';
         let fabOpen = false;
+
+        // ==================== AUTO-ADD RECURRING ====================
+        function checkAndAddRecurring() {
+            const today = new Date();
+            const currentDay = today.getDate();
+            const currentMonth = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+            const todayStr = today.toISOString().split('T')[0];
+
+            let added = false;
+
+            appData.recurring.forEach(rec => {
+                // Check if already added this month
+                const alreadyAdded = appData.transactions.some(tx =>
+                    tx.recurringId === rec.id &&
+                    tx.date && tx.date.startsWith(currentMonth)
+                );
+
+                if (!alreadyAdded && currentDay >= rec.day) {
+                    const categoryIcons = {
+                        '🏠 Mieszkanie': '🏠', '🎉 Subskrypcje': '🎬', '🚗 Transport': '🚕',
+                        '💊 Ubezpieczenie': '💊', '📚 Edukacja': '💻', '💸 Rata/Leasing': '💳',
+                        '🛍️ Inne stałe': '🛍️'
+                    };
+
+                    const tx = {
+                        id: Date.now() + Math.random(),
+                        amount: rec.amount,
+                        name: rec.name,
+                        category: rec.category,
+                        type: 'expense',
+                        date: todayStr,
+                        icon: rec.emoji || categoryIcons[rec.category] || '🔄',
+                        recurringId: rec.id,
+                        isRecurring: true
+                    };
+
+                    appData.transactions.push(tx);
+                    added = true;
+                }
+            });
+
+            if (added) {
+                saveData();
+                updateUI();
+                showToast('Dodano automatyczne stałe wydatki 📅');
+            }
+        }
 
         // ==================== MONTH SELECTOR ====================
         function buildMonthSelector() {
@@ -880,10 +1120,97 @@
             document.getElementById('totalIncome').textContent = income.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
             document.getElementById('totalExpense').textContent = expense.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
 
+            renderRecurring();
             renderTransactions(filtered);
             renderGoals();
             renderChart(filtered);
-            updateCoach(income, expense, balance);
+            updateCoach(income, expense, balance, filtered);
+
+            // Update badge
+            const unpaidCount = getUnpaidRecurringCount();
+            const badgeEl = document.getElementById('recurringBadge');
+            if (badgeEl) {
+                if (unpaidCount > 0) {
+                    badgeEl.textContent = unpaidCount;
+                    badgeEl.style.display = 'block';
+                } else {
+                    badgeEl.style.display = 'none';
+                }
+            }
+        }
+
+        // ==================== RECURRING ====================
+        function getUnpaidRecurringCount() {
+            const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+            return appData.recurring.filter(rec => {
+                return !appData.transactions.some(tx =>
+                    tx.recurringId === rec.id && tx.date && tx.date.startsWith(currentMonth)
+                );
+            }).length;
+        }
+
+        function renderRecurring() {
+            const container = document.getElementById('recurringContainer');
+            if (appData.recurring.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nie masz jeszcze stałych wydatków. Dodaj pierwszy!</div>';
+                return;
+            }
+
+            const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+
+            container.innerHTML = appData.recurring.map((rec, index) => {
+                const isPaid = appData.transactions.some(tx =>
+                    tx.recurringId === rec.id && tx.date && tx.date.startsWith(currentMonth)
+                );
+                return `
+                    <div class="recurring-card${isPaid ? ' paid' : ''}">
+                        <div class="recurring-status"></div>
+                        <div class="recurring-icon">${escapeHtml(rec.emoji || '🔄')}</div>
+                        <div class="recurring-name">${escapeHtml(rec.name)}</div>
+                        <div class="recurring-amount">-${rec.amount.toFixed(2)} PLN</div>
+                        <div class="recurring-date">Co miesiąc ~${rec.day}. dnia</div>
+                        <div class="recurring-actions">
+                            ${!isPaid ? `<button class="recurring-btn pay-now" onclick="payRecurringNow(${index})">Zapłać teraz</button>` : '<span style="font-size:11px;color:#34c759;">Opłacone ✅</span>'}
+                            <button class="recurring-btn skip" onclick="deleteRecurring(${index})">Usuń</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function payRecurringNow(index) {
+            const rec = appData.recurring[index];
+            const categoryIcons = {
+                '🏠 Mieszkanie': '🏠', '🎉 Subskrypcje': '🎬', '🚗 Transport': '🚕',
+                '💊 Ubezpieczenie': '💊', '📚 Edukacja': '💻', '💸 Rata/Leasing': '💳',
+                '🛍️ Inne stałe': '🛍️'
+            };
+
+            const tx = {
+                id: Date.now(),
+                amount: rec.amount,
+                name: rec.name,
+                category: rec.category,
+                type: 'expense',
+                date: new Date().toISOString().split('T')[0],
+                icon: rec.emoji || categoryIcons[rec.category] || '🔄',
+                recurringId: rec.id,
+                isRecurring: true
+            };
+
+            appData.transactions.push(tx);
+            saveData();
+            updateUI();
+            showToast(`Opłacono: ${rec.name} ✅`);
+        }
+
+        function deleteRecurring(index) {
+            const rec = appData.recurring[index];
+            if (!confirm(`Usunąć stały wydatek "${rec.name}"?`)) return;
+            appData.recurring.splice(index, 1);
+            saveData();
+            updateUI();
+            showToast('Stały wydatek usunięty');
         }
 
         // ==================== TRANSACTIONS ====================
@@ -893,9 +1220,16 @@
 
             if (currentTab === 'expenses') tx = tx.filter(t => t.type === 'expense');
             if (currentTab === 'income') tx = tx.filter(t => t.type === 'income');
+            if (currentTab === 'recurring') tx = tx.filter(t => t.isRecurring);
 
             if (tx.length === 0) {
-                container.innerHTML = '<div class="no-data">Brak transakcji w tym widoku</div>';
+                const messages = {
+                    'recurring': 'Brak transakcji ze stałych wydatków w tym miesiącu',
+                    'expenses': 'Brak wydatków w tym widoku',
+                    'income': 'Brak przychodów w tym widoku',
+                    'all': 'Brak transakcji w tym widoku'
+                };
+                container.innerHTML = `<div class="no-data">${messages[currentTab] || 'Brak transakcji'}</div>`;
                 return;
             }
 
@@ -906,16 +1240,20 @@
                         '🍔 Jedzenie': '🛒', '🚗 Transport': '🚕', '🏠 Mieszkanie': '🏠',
                         '🎉 Rozrywka': '🎬', '💊 Zdrowie': '💊', '📚 Edukacja': '💻',
                         '🛍️ Zakupy': '🛍️', '💰 Wynagrodzenie': '💰', '📈 Inwestycje': '📈',
-                        '🎁 Prezenty': '🎁', '💸 Inne': '💳'
+                        '🎁 Prezenty': '🎁', '💸 Inne': '💳', '🎉 Subskrypcje': '🎬',
+                        '💊 Ubezpieczenie': '💊', '💸 Rata/Leasing': '💳', '🛍️ Inne stałe': '🛍️'
                     };
                     const icon = t.icon || categoryIcons[t.category] || '💳';
                     const sign = t.type === 'income' ? '+' : '-';
                     const cssClass = t.type === 'income' ? 'tx-income' : 'tx-expense';
                     return `
-                        <div class="tx-item">
+                        <div class="tx-item${t.isRecurring ? ' recurring-tx' : ''}">
                             <div class="tx-icon" style="background:#f2f2f7;">${icon}</div>
                             <div class="tx-info">
-                                <div class="tx-name">${escapeHtml(t.name)}</div>
+                                <div class="tx-name">
+                                    ${escapeHtml(t.name)}
+                                    ${t.isRecurring ? '<span class="recurring-badge">🔄 stałe</span>' : ''}
+                                </div>
                                 <div class="tx-meta">${t.category} · ${t.date || '—'}</div>
                             </div>
                             <div class="tx-amount ${cssClass}">${sign}${t.amount.toFixed(2)} PLN</div>
@@ -1017,13 +1355,13 @@
         }
 
         // ==================== AI COACH ====================
-        function updateCoach(income, expense, balance) {
+        function updateCoach(income, expense, balance, filteredTx) {
             const msgEl = document.getElementById('coachMsg');
             const tipEl = document.getElementById('coachTip');
 
             if (income === 0 && expense === 0) {
                 msgEl.textContent = 'Zacznij dodawać transakcje, a pomogę Ci lepiej zarządzać budżetem!';
-                tipEl.textContent = '💡 Dodaj swój pierwszy przychód, żeby zobaczyć statystyki.';
+                tipEl.textContent = '💡 Dodaj swój pierwszy przychód i stałe wydatki.';
                 return;
             }
 
@@ -1033,20 +1371,25 @@
                 return;
             }
 
+            const recurringTotal = appData.recurring.reduce((s, r) => s + r.amount, 0);
             const savingsRate = income > 0 ? (balance / income) * 100 : 0;
 
             if (expense > income) {
                 msgEl.textContent = `⚠️ Wydałeś więcej (${expense.toFixed(0)} zł) niż zarobiłeś (${income.toFixed(0)} zł)!`;
-                tipEl.textContent = '💡 Przejrzyj wydatki i ogranicz te niekonieczne.';
+                tipEl.textContent = recurringTotal > 0
+                    ? `💡 Twoje stałe wydatki to ${recurringTotal.toFixed(0)} zł. Przejrzyj je i ogranicz.`
+                    : '💡 Przejrzyj wydatki i ogranicz te niekonieczne.';
             } else if (savingsRate >= 30) {
                 msgEl.textContent = `👏 Świetnie! Oszczędzasz aż ${savingsRate.toFixed(0)}% swoich przychodów.`;
                 tipEl.textContent = '💡 Może czas zwiększyć cele oszczędnościowe?';
             } else if (savingsRate >= 10) {
                 msgEl.textContent = `Dobrze Ci idzie. Oszczędzasz ${savingsRate.toFixed(0)}% przychodów.`;
-                tipEl.textContent = '💡 Spróbuj ograniczyć subskrypcje i jedzenie na mieście.';
+                tipEl.textContent = `💡 Stałe wydatki: ${recurringTotal.toFixed(0)} zł. Może warto coś zoptymalizować?`;
             } else if (savingsRate >= 0) {
                 msgEl.textContent = `Oszczędzasz tylko ${savingsRate.toFixed(0)}%. Może być lepiej!`;
-                tipEl.textContent = '💡 Ustal budżet tygodniowy i trzymaj się go.';
+                tipEl.textContent = recurringTotal > income * 0.5
+                    ? '⚠️ Twoje stałe wydatki przekraczają 50% przychodów!'
+                    : '💡 Ustal budżet tygodniowy i trzymaj się go.';
             }
         }
 
@@ -1060,6 +1403,16 @@
             modal.classList.add('active');
             closeFab();
             setTimeout(() => document.getElementById('txAmount').focus(), 350);
+        }
+
+        function openRecurringModal() {
+            document.getElementById('recName').value = '';
+            document.getElementById('recAmount').value = '';
+            document.getElementById('recDay').value = '';
+            document.getElementById('recEmoji').value = '';
+            document.getElementById('recurringModal').classList.add('active');
+            closeFab();
+            setTimeout(() => document.getElementById('recName').focus(), 350);
         }
 
         function openGoalModal() {
@@ -1112,6 +1465,33 @@
             updateUI();
             closeModal('txModal');
             showToast(type === 'income' ? 'Przychód dodany ✅' : 'Wydatek dodany ✅');
+        }
+
+        function saveRecurring() {
+            const name = document.getElementById('recName').value.trim();
+            const amount = parseFloat(document.getElementById('recAmount').value);
+            const category = document.getElementById('recCategory').value;
+            const day = parseInt(document.getElementById('recDay').value);
+            const emoji = document.getElementById('recEmoji').value.trim();
+
+            if (!name) { alert('Podaj nazwę.'); return; }
+            if (!amount || amount <= 0) { alert('Podaj kwotę.'); return; }
+            if (!day || day < 1 || day > 31) { alert('Podaj dzień miesiąca (1-31).'); return; }
+
+            const rec = {
+                id: Date.now(),
+                name,
+                amount,
+                category,
+                day,
+                emoji: emoji || null
+            };
+
+            appData.recurring.push(rec);
+            saveData();
+            updateUI();
+            closeModal('recurringModal');
+            showToast(`Stały wydatek dodany: ${name} co ${day}. dnia miesiąca 🔄`);
         }
 
         function saveGoal() {
@@ -1179,6 +1559,9 @@
         document.getElementById('txModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal('txModal');
         });
+        document.getElementById('recurringModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal('recurringModal');
+        });
         document.getElementById('goalModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal('goalModal');
         });
@@ -1215,8 +1598,8 @@
 
         function resetData() {
             if (!confirm('Czy na pewno usunąć WSZYSTKIE dane? Tej operacji nie można cofnąć.')) return;
-            if (!confirm('Jesteś pewien? Stracisz wszystkie transakcje i cele.')) return;
-            appData = { transactions: [], goals: [], version: 2 };
+            if (!confirm('Jesteś pewien? Stracisz wszystkie transakcje, cele i stałe wydatki.')) return;
+            appData = { transactions: [], goals: [], recurring: [], version: 3 };
             saveData();
             updateUI();
             showToast('Dane zresetowane 🔄');
@@ -1225,6 +1608,7 @@
         // ==================== INIT ====================
         function init() {
             buildMonthSelector();
+            checkAndAddRecurring(); // Auto-add recurring for current month
             updateUI();
             // Close fab on outside click
             document.addEventListener('click', (e) => {
