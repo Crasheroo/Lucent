@@ -1,260 +1,82 @@
 <!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savings Coach - Oszczędzaj Inteligentnie</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1>Savings Coach</h1>
-                <button class="theme-toggle" id="themeToggle">🌙</button>
-            </div>
-            <div class="balance-card">
-                <div class="balance-item">
-                    <span class="balance-label">Całkowite wydatki</span>
-                    <span class="balance-value" id="totalSpent">0 zł</span>
-                </div>
-                <div class="balance-item">
-                    <span class="balance-label">Dziś</span>
-                    <span class="balance-value" id="todaySpent">0 zł</span>
-                </div>
-                <div class="balance-item">
-                    <span class="balance-label">Średnia/dzień</span>
-                    <span class="balance-value" id="avgDaily">0 zł</span>
-                </div>
-            </div>
-        </header>
+        <div>
+          <span>Pozostało</span>
+          <strong id="remaining">3200 zł</strong>
+        </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Dashboard Tab -->
-            <div class="tab-content active" id="dashboardTab">
-                <div class="section">
-                    <h2>Twoje wydatki</h2>
-                    <div class="chart-container">
-                        <canvas id="expenseChart"></canvas>
-                    </div>
-                </div>
+        <div>
+          <span>Wydane</span>
+          <strong id="spent">0 zł</strong>
+        </div>
+      </div>
+    </section>
 
-                <div class="section">
-                    <h2>Statystyki</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <span class="stat-label">Kategoria #1</span>
-                            <span class="stat-value" id="topCategory">-</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Liczba wydatków</span>
-                            <span class="stat-value" id="expenseCount">0</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Maks. wydatek</span>
-                            <span class="stat-value" id="maxExpense">0 zł</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Add Expense Tab -->
-            <div class="tab-content" id="addTab">
-                <div class="section">
-                    <h2>Dodaj wydatek</h2>
-                    <form id="expenseForm" class="form">
-                        <div class="form-group">
-                            <label for="amount">Kwota (zł)</label>
-                            <input 
-                                type="number" 
-                                id="amount" 
-                                placeholder="0.00" 
-                                step="0.01" 
-                                min="0"
-                                required
-                            >
-                        </div>
+    <section class="coach-card glass">
+      <p class="coach-title">AI Coach</p>
+      <h3 id="coachMessage">
+        Zacznij dodawać wydatki, a pokażę Ci gdzie uciekają pieniądze.
+      </h3>
+    </section>
 
-                        <div class="form-group">
-                            <label for="category">Kategoria</label>
-                            <select id="category" required>
-                                <option value="">Wybierz kategorię</option>
-                                <option value="jedzenie">🍕 Jedzenie</option>
-                                <option value="transport">🚗 Transport</option>
-                                <option value="rozrywka">🎮 Rozrywka</option>
-                                <option value="shopping">🛍️ Shopping</option>
-                                <option value="mieszkanie">🏠 Mieszkanie</option>
-                                <option value="zdrowie">⚕️ Zdrowie</option>
-                                <option value="subskrypcje">📱 Subskrypcje</option>
-                                <option value="inne">📌 Inne</option>
-                            </select>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="description">Opis (opcjonalnie)</label>
-                            <input 
-                                type="text" 
-                                id="description" 
-                                placeholder="Np. Obiad w restauracji"
-                            >
-                        </div>
+    <section class="section-title">
+      <h2>Dzisiejsze wydatki</h2>
+    </section>
 
-                        <div class="form-group">
-                            <label for="date">Data</label>
-                            <input 
-                                type="date" 
-                                id="date"
-                            >
-                        </div>
 
-                        <button type="submit" class="btn btn-primary">➕ Dodaj wydatek</button>
-                    </form>
-                </div>
+    <section id="expenseList" class="expense-list">
+    </section>
 
-                <!-- Recent Expenses -->
-                <div class="section">
-                    <h2>Ostatnie wydatki</h2>
-                    <div id="recentExpenses" class="expenses-list">
-                        <p class="empty-state">Brak wydatków. Zacznij dodawać! 💰</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- AI Coach Tab -->
-            <div class="tab-content" id="coachTab">
-                <div class="section">
-                    <h2>🤖 AI Coach</h2>
-                    <div class="coach-card">
-                        <div class="coach-message" id="coachMessage">
-                            Dzień dobry! 👋 Kliknij przycisk poniżej, aby otrzymać codzienną poradę.
-                        </div>
-                        <button class="btn btn-secondary" id="getAdviceBtn">💡 Otrzymaj poradę</button>
-                    </div>
-                </div>
+    <button class="fab" id="openModal">
+      +
+    </button>
 
-                <div class="section">
-                    <h2>Tipy oszczędzania</h2>
-                    <div class="tips-list" id="tipsList"></div>
-                </div>
-            </div>
 
-            <!-- Goals Tab -->
-            <div class="tab-content" id="goalsTab">
-                <div class="section">
-                    <h2>🎯 Cele oszczędnościowe</h2>
-                    <form id="goalForm" class="form">
-                        <div class="form-group">
-                            <label for="goalName">Nazwa celu</label>
-                            <input 
-                                type="text" 
-                                id="goalName" 
-                                placeholder="Np. Wyjazd do Paryża"
-                                required
-                            >
-                        </div>
+    <div class="modal hidden" id="modal">
+      <div class="modal-content glass">
 
-                        <div class="form-group">
-                            <label for="goalAmount">Docelowa kwota (zł)</label>
-                            <input 
-                                type="number" 
-                                id="goalAmount" 
-                                placeholder="0.00" 
-                                step="0.01" 
-                                min="0"
-                                required
-                            >
-                        </div>
+        <div class="modal-header">
+          <h2>Dodaj wydatek</h2>
+          <button id="closeModal">✕</button>
+        </div>
 
-                        <div class="form-group">
-                            <label for="goalSaved">Już zaoszczędzono (zł)</label>
-                            <input 
-                                type="number" 
-                                id="goalSaved" 
-                                placeholder="0.00" 
-                                step="0.01" 
-                                min="0"
-                                value="0"
-                            >
-                        </div>
+        <form id="expenseForm">
 
-                        <button type="submit" class="btn btn-primary">🎯 Dodaj cel</button>
-                    </form>
-                </div>
+          <input
+            type="number"
+            id="amount"
+            placeholder="Kwota"
+            required
+          />
 
-                <div class="section">
-                    <h2>Twoje cele</h2>
-                    <div id="goalsList" class="goals-list">
-                        <p class="empty-state">Brak celów. Zaplanuj coś wspaniałego! 🌟</p>
-                    </div>
-                </div>
-            </div>
+          <input
+            type="text"
+            id="title"
+            placeholder="Opis"
+            required
+          />
 
-            <!-- History Tab -->
-            <div class="tab-content" id="historyTab">
-                <div class="section">
-                    <h2>📊 Historia wydatków</h2>
-                    <div class="filters">
-                        <input 
-                            type="text" 
-                            id="searchInput" 
-                            placeholder="🔍 Szukaj wydatków..."
-                            class="search-input"
-                        >
-                        <select id="filterCategory" class="filter-select">
-                            <option value="">Wszystkie kategorie</option>
-                            <option value="jedzenie">🍕 Jedzenie</option>
-                            <option value="transport">🚗 Transport</option>
-                            <option value="rozrywka">🎮 Rozrywka</option>
-                            <option value="shopping">🛍️ Shopping</option>
-                            <option value="mieszkanie">🏠 Mieszkanie</option>
-                            <option value="zdrowie">⚕️ Zdrowie</option>
-                            <option value="subskrypcje">📱 Subskrypcje</option>
-                            <option value="inne">📌 Inne</option>
-                        </select>
-                    </div>
-                </div>
+          <select id="category">
+            <option>Jedzenie</option>
+            <option>Transport</option>
+            <option>Zakupy</option>
+            <option>Subskrypcje</option>
+            <option>Rozrywka</option>
+            <option>Inne</option>
+          </select>
 
-                <div class="section">
-                    <div id="historyList" class="expenses-list">
-                        <p class="empty-state">Brak wydatków do wyświetlenia 📭</p>
-                    </div>
-                </div>
+          <button type="submit" class="save-btn">
+            Zapisz wydatek
+          </button>
 
-                <div class="section">
-                    <button class="btn btn-danger" id="clearDataBtn">🗑️ Wyczyść wszystkie dane</button>
-                    <button class="btn btn-secondary" id="exportDataBtn">💾 Eksportuj dane</button>
-                </div>
-            </div>
-        </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-tab="dashboardTab">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Panel</span>
-            </button>
-            <button class="nav-item" data-tab="addTab">
-                <span class="nav-icon">➕</span>
-                <span class="nav-label">Dodaj</span>
-            </button>
-            <button class="nav-item" data-tab="coachTab">
-                <span class="nav-icon">🤖</span>
-                <span class="nav-label">Coach</span>
-            </button>
-            <button class="nav-item" data-tab="goalsTab">
-                <span class="nav-icon">🎯</span>
-                <span class="nav-label">Cele</span>
-            </button>
-            <button class="nav-item" data-tab="historyTab">
-                <span class="nav-icon">📜</span>
-                <span class="nav-label">Historia</span>
-            </button>
-        </nav>
+        </form>
+      </div>
     </div>
 
-    <script src="app.js"></script>
+  </div>
+
+<script src="app.js"></script>
 </body>
 </html>
