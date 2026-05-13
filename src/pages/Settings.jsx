@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { signInWithPopup, signOut } from 'firebase/auth'
 import useStore from '../store/useStore.js'
 import { CATEGORIES, CURRENCIES } from '../utils/constants.js'
+import { version } from '../../package.json'
 import { useFormatCurrency } from '../hooks/useFormatCurrency.js'
 import {
   auth,
@@ -506,7 +507,7 @@ export default function Settings() {
           </Link>
         </div>
         <p className={styles.sectionNote} style={{ textAlign: 'center', paddingTop: 20, paddingBottom: 8 }}>
-          {t.settings.version}
+          Lucent v{version}
         </p>
       </div>
     </div>

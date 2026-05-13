@@ -13,7 +13,7 @@ export default function Setup() {
   const handleFinish = () => {
     if (!salary || isNaN(Number(salary))) return
     setProfile({
-      name: name.trim() || 'Użytkownik',
+      name: name.trim() || '',
       salary: Number(salary),
       currency: 'PLN',
       setupDone: true,

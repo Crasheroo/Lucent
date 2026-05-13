@@ -164,7 +164,7 @@ export default function Dashboard() {
             </div>
             <div className={styles.goalWidgetRight}>
               <p className={styles.goalWidgetPct} style={{ color: topGoal.color }}>{topGoalPct.toFixed(0)}%</p>
-              <p className={styles.goalWidgetSub}>osiągnięte</p>
+              <p className={styles.goalWidgetSub}>{t.dashboard.achieved}</p>
             </div>
           </div>
           <div className={styles.goalWidgetTrack}>

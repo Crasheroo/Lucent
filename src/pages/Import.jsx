@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore.js'
 import { CATEGORIES, formatDate } from '../utils/constants.js'
 import { useFormatCurrency } from '../hooks/useFormatCurrency.js'
+import { useTranslation } from '../hooks/useTranslation.js'
 import { parseBank, readFileAsText } from '../services/bankParser.js'
 import styles from './Import.module.css'
 
 export default function Import() {
   const navigate = useNavigate()
-  const { addExpense, customCategories } = useStore()
+  const t = useTranslation()
+  const { addExpense, customCategories, expenses } = useStore()
   const formatAmount = useFormatCurrency()
   const allCategories = [...CATEGORIES, ...(customCategories || [])]
   const fileRef = useRef(null)
@@ -21,6 +23,7 @@ export default function Import() {
   const [cats, setCats] = useState({})
   const [filterMode, setFilterMode] = useState('expenses')
   const [importedCount, setImportedCount] = useState(0)
+  const [skippedCount, setSkippedCount] = useState(0)
 
   const handleFile = async (file) => {
     if (!file) return
@@ -30,7 +33,7 @@ export default function Import() {
       const text = await readFileAsText(file)
       const parsed = parseBank(text)
       if (!parsed || parsed.length === 0) {
-        setError('Nie udało się odczytać pliku. Sprawdź czy to plik CSV z historią transakcji z banku (mBank, PKO BP, ING).')
+        setError(t.import.errorParse)
         setParsing(false)
         return
       }
@@ -44,7 +47,7 @@ export default function Import() {
       setCats(catMap)
       setStep('preview')
     } catch (e) {
-      setError('Błąd odczytu: ' + (e?.message || 'Spróbuj ponownie'))
+      setError(t.import.errorRead(e?.message || 'Spróbuj ponownie'))
     }
     setParsing(false)
   }
@@ -74,10 +77,18 @@ export default function Import() {
     setSelected(next)
   }
 
+  const isDuplicate = (tx) =>
+    expenses.some((e) =>
+      e.date === tx.date &&
+      Math.abs(e.amount - tx.amount) < 0.01 &&
+      e.description === tx.description
+    )
+
   const handleImport = () => {
-    let count = 0
+    let count = 0, skipped = 0
     transactions.forEach((tx, i) => {
       if (!selected[i]) return
+      if (isDuplicate(tx)) { skipped++; return }
       addExpense({
         amount: tx.amount,
         description: tx.description,
@@ -87,6 +98,7 @@ export default function Import() {
       count++
     })
     setImportedCount(count)
+    setSkippedCount(skipped)
     setStep('success')
   }
 
@@ -97,12 +109,12 @@ export default function Import() {
     return (
       <div className={styles.page}>
         <div className={styles.header}>
-          <button className="back-home-btn" onClick={() => navigate('/expenses')}>
+          <button className="back-home-btn" onClick={() => navigate('/expenses')} aria-label={t.nav.expenses}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
-          <h1 className={styles.title}>Import z banku</h1>
+          <h1 className={styles.title}>{t.import.title}</h1>
           <div style={{ width: 36 }} />
         </div>
 
@@ -122,7 +134,7 @@ export default function Import() {
           {parsing ? (
             <>
               <div className={styles.spinner} />
-              <p className={styles.dropLabel}>Analizuję plik...</p>
+              <p className={styles.dropLabel}>{t.import.parsing}</p>
             </>
           ) : (
             <>
@@ -131,8 +143,8 @@ export default function Import() {
                 <polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
               </svg>
-              <p className={styles.dropLabel}>Wybierz lub upuść plik CSV</p>
-              <p className={styles.dropSub}>Obsługiwane banki: mBank, PKO BP, ING</p>
+              <p className={styles.dropLabel}>{t.import.dropLabel}</p>
+              <p className={styles.dropSub}>{t.import.dropSub}</p>
             </>
           )}
         </div>
@@ -140,18 +152,18 @@ export default function Import() {
         {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.infoCard}>
-          <p className={styles.infoTitle}>Jak wyeksportować historię?</p>
+          <p className={styles.infoTitle}>{t.import.infoTitle}</p>
           <div className={styles.infoRow}>
             <span className={styles.infoBank}>mBank</span>
-            <span className={styles.infoStep}>Historia → Eksportuj → CSV</span>
+            <span className={styles.infoStep}>{t.import.mBankStep}</span>
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoBank}>PKO BP</span>
-            <span className={styles.infoStep}>Zestawienia → Eksport → CSV</span>
+            <span className={styles.infoStep}>{t.import.pkoBpStep}</span>
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoBank}>ING</span>
-            <span className={styles.infoStep}>Historia → Pobierz → CSV</span>
+            <span className={styles.infoStep}>{t.import.ingStep}</span>
           </div>
         </div>
       </div>
@@ -164,15 +176,20 @@ export default function Import() {
       <div className={styles.page}>
         <div className={styles.successWrap}>
           <div className={styles.successIcon}>✅</div>
-          <p className={styles.successTitle}>Zaimportowano {importedCount} wydatków</p>
-          <p className={styles.successSub}>Transakcje zostały dodane do Twoich wydatków</p>
+          <p className={styles.successTitle}>{t.import.successTitle(importedCount)}</p>
+          <p className={styles.successSub}>{t.import.successSub}</p>
+          {skippedCount > 0 && (
+            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+              {t.import.duplicateSkipped(skippedCount)}
+            </p>
+          )}
           <button className={styles.successBtn} onClick={() => navigate('/expenses')}>
-            Zobacz wydatki
+            {t.import.seeExpenses}
           </button>
           <button className={styles.successBtnSecondary} onClick={() => {
             setStep('upload'); setTransactions([]); setSelected({}); setError('')
           }}>
-            Importuj kolejny plik
+            {t.import.importAnother}
           </button>
         </div>
       </div>
@@ -186,14 +203,14 @@ export default function Import() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <button className="back-home-btn" onClick={() => setStep('upload')}>
+        <button className="back-home-btn" onClick={() => setStep('upload')} aria-label={t.common.back}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
         <div>
-          <h1 className={styles.title}>Podgląd importu</h1>
-          <p className={styles.subtitle}>Wybierz transakcje do importu</p>
+          <h1 className={styles.title}>{t.import.previewTitle}</h1>
+          <p className={styles.subtitle}>{t.import.previewSub}</p>
         </div>
         <div style={{ width: 36 }} />
       </div>
@@ -201,9 +218,9 @@ export default function Import() {
       {/* Filter tabs */}
       <div className={styles.filterTabs}>
         {[
-          { id: 'expenses', label: `Wydatki (${expenseCount})` },
-          { id: 'income',   label: `Przychody (${incomeCount})` },
-          { id: 'all',      label: `Wszystkie (${transactions.length})` },
+          { id: 'expenses', label: t.import.tabExpenses(expenseCount) },
+          { id: 'income',   label: t.import.tabIncome(incomeCount) },
+          { id: 'all',      label: t.import.tabAll(transactions.length) },
         ].map((f) => (
           <button
             key={f.id}
@@ -217,10 +234,10 @@ export default function Import() {
 
       {/* Select all / Deselect all */}
       <div className={styles.bulkRow}>
-        <span className={styles.bulkCount}>{selectedCount} zaznaczonych</span>
+        <span className={styles.bulkCount}>{t.import.selectedCount(selectedCount)}</span>
         <div className={styles.bulkBtns}>
-          <button className={styles.bulkBtn} onClick={() => toggleAll(true)}>Zaznacz wszystkie</button>
-          <button className={styles.bulkBtn} onClick={() => toggleAll(false)}>Odznacz</button>
+          <button className={styles.bulkBtn} onClick={() => toggleAll(true)}>{t.import.selectAll}</button>
+          <button className={styles.bulkBtn} onClick={() => toggleAll(false)}>{t.import.deselectAll}</button>
         </div>
       </div>
 
@@ -229,12 +246,13 @@ export default function Import() {
         {visible.length === 0 ? (
           <div className={styles.empty}>
             <span>🔍</span>
-            <p>Brak transakcji do wyświetlenia</p>
+            <p>{t.import.noTransactions}</p>
           </div>
         ) : (
           visible.map((tx) => {
             const cat = getCat(cats[tx._i])
             const isChecked = !!selected[tx._i]
+            const dup = isDuplicate(tx)
             return (
               <div
                 key={tx._i}
@@ -255,7 +273,10 @@ export default function Import() {
 
                 <div className={styles.txInfo}>
                   <p className={styles.txDesc}>{tx.description}</p>
-                  <p className={styles.txDate}>{formatDate(tx.date)}</p>
+                  <p className={styles.txDate}>
+                    {formatDate(tx.date)}
+                    {dup && <span style={{ color: 'var(--text-tertiary)', marginLeft: 6, fontSize: 11 }}>duplikat</span>}
+                  </p>
                 </div>
 
                 <div className={styles.txRight}>
@@ -289,7 +310,7 @@ export default function Import() {
           onClick={handleImport}
           disabled={selectedCount === 0}
         >
-          Importuj {selectedCount} transakcji
+          {t.import.importBtn(selectedCount)}
         </button>
       </div>
     </div>

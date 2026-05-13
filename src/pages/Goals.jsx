@@ -78,8 +78,7 @@ export default function Goals() {
         .reduce((s, e) => s + e.amount, 0)
       months.push(total)
     }
-    const withData = months.filter((v) => v > 0)
-    return withData.length > 0 ? withData.reduce((a, b) => a + b, 0) / withData.length : 0
+    return months.reduce((a, b) => a + b, 0) / 3
   }, [expenses])
 
   const thisMonthExpenses = useMemo(() => {

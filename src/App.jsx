@@ -90,6 +90,7 @@ export default function App() {
         }
         setSyncing(false)
       } else {
+        clearTimeout(syncTimerRef.current)
         useStore.getState().resetStore()
       }
     })

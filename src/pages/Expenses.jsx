@@ -54,6 +54,7 @@ export default function Expenses() {
     const groups = {}
     filtered.forEach((e) => {
       const d = new Date(e.date)
+      if (isNaN(d.getTime())) return
       const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
       if (!groups[key]) groups[key] = { label: formatDate(e.date), items: [] }
       groups[key].items.push(e)
@@ -66,14 +67,14 @@ export default function Expenses() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <button className="back-home-btn" onClick={() => navigate('/')} aria-label="Pulpit">
+        <button className="back-home-btn" onClick={() => navigate('/')} aria-label={t.nav.overview}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
         <h1 className={styles.title}>{t.expenses.title}</h1>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className={styles.importBtn} onClick={() => navigate('/import')} title="Import z banku">
+          <button className={styles.importBtn} onClick={() => navigate('/import')} title={t.import.title}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

@@ -1,4 +1,15 @@
 import React from 'react'
+import { translations } from '../utils/translations.js'
+
+function getT() {
+  try {
+    const raw = localStorage.getItem('lucent-storage')
+    const lang = raw ? JSON.parse(raw)?.state?.settings?.language : 'pl'
+    return translations[lang] || translations.pl
+  } catch {
+    return translations.pl
+  }
+}
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -16,6 +27,7 @@ export default class ErrorBoundary extends React.Component {
 
   render() {
     if (!this.state.hasError) return this.props.children
+    const t = getT()
 
     return (
       <div style={{
@@ -31,10 +43,10 @@ export default class ErrorBoundary extends React.Component {
       }}>
         <span style={{ fontSize: 48 }}>⚠️</span>
         <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>
-          Coś poszło nie tak
+          {t.errorBoundary.title}
         </p>
         <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          Wystąpił nieoczekiwany błąd. Odśwież stronę lub wyczyść dane aplikacji w ustawieniach.
+          {t.errorBoundary.message}
         </p>
         <button
           onClick={() => window.location.reload()}
@@ -50,7 +62,7 @@ export default class ErrorBoundary extends React.Component {
             cursor: 'pointer',
           }}
         >
-          Odśwież aplikację
+          {t.errorBoundary.reload}
         </button>
       </div>
     )
