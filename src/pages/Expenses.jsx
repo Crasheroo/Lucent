@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore.js'
-import { CATEGORIES, getCategoryById, formatCurrency, formatDate } from '../utils/constants.js'
+import { CATEGORIES, formatCurrency, formatDate } from '../utils/constants.js'
 import styles from './Expenses.module.css'
 
 export default function Expenses() {
   const navigate = useNavigate()
-  const { expenses, deleteExpense } = useStore()
+  const { expenses, deleteExpense, customCategories } = useStore()
+  const allCategories = [...CATEGORIES, ...customCategories]
+  const getCat = (id) => allCategories.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1]
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [swipedId, setSwipedId] = useState(null)
@@ -68,7 +70,7 @@ export default function Expenses() {
         >
           Wszystkie
         </button>
-        {CATEGORIES.map((cat) => (
+        {allCategories.map((cat) => (
           <button
             key={cat.id}
             className={`${styles.filterBtn} ${filterCat === cat.id ? styles.filterBtnActive : ''}`}
@@ -100,7 +102,7 @@ export default function Expenses() {
               <p className={styles.groupLabel}>{group.label}</p>
               <div className={styles.groupItems}>
                 {group.items.map((e) => {
-                  const cat = getCategoryById(e.category)
+                  const cat = getCat(e.category)
                   return (
                     <div
                       key={e.id}

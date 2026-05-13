@@ -173,6 +173,28 @@
   box-sizing: border-box;
 }
 
+.deadlinePicker {
+  display: flex;
+  gap: 8px;
+}
+
+.deadlineSelect {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 15px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--separator-opaque);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.deadlineSelect:focus {
+  border-color: var(--accent-blue);
+}
+
 .deadlineHint {
   font-size: 13px;
   color: #0a84ff;

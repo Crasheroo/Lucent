@@ -7,8 +7,9 @@ import styles from './AddExpense.module.css'
 
 export default function AddExpense() {
   const navigate = useNavigate()
-  const { addExpense } = useStore()
+  const { addExpense, customCategories } = useStore()
   const fileRef = useRef(null)
+  const allCategories = [...CATEGORIES, ...customCategories]
 
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -26,7 +27,7 @@ export default function AddExpense() {
     }
     addExpense({
       amount: Number(amount),
-      description: description.trim() || CATEGORIES.find((c) => c.id === category)?.label || 'Wydatek',
+      description: description.trim() || allCategories.find((c) => c.id === category)?.label || 'Wydatek',
       category,
       date: new Date(date).toISOString(),
     })
@@ -170,7 +171,7 @@ export default function AddExpense() {
         <div className={styles.field}>
           <label className={styles.fieldLabel}>Kategoria</label>
           <div className={styles.categories}>
-            {CATEGORIES.map((cat) => (
+            {allCategories.map((cat) => (
               <button
                 key={cat.id}
                 className={`${styles.catBtn} ${category === cat.id ? styles.catBtnActive : ''}`}

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signInWithPopup, signOut } from 'firebase/auth'
 import useStore from '../store/useStore.js'
+import { CATEGORIES } from '../utils/constants.js'
 import {
   auth,
   googleProvider,
@@ -11,6 +12,9 @@ import {
   sendPasswordResetEmail,
 } from '../services/firebase.js'
 import styles from './Settings.module.css'
+
+const CAT_ICONS = ['🏷️', '🐾', '🎁', '🎮', '💇', '🧴', '🧹', '🍕', '☕', '🎨', '🏊', '🚴', '🌿', '🧸', '👗', '💄', '🔧', '🎵', '⚽', '🐟']
+const CAT_COLORS = ['#0a84ff', '#30d158', '#ff9f0a', '#ff453a', '#bf5af2', '#5ac8fa', '#ff6b35', '#ffd60a', '#64d2ff', '#98989e']
 
 const ACCENT_COLORS = [
   { label: 'Niebieski', value: '#0a84ff' },
@@ -38,10 +42,27 @@ function getFirebaseError(code) {
 
 export default function Settings() {
   const navigate = useNavigate()
-  const { settings, setSettings, profile, user, syncing } = useStore()
+  const { settings, setSettings, profile, user, syncing, customCategories, addCustomCategory, deleteCustomCategory } = useStore()
 
   const theme = settings?.theme || 'dark'
   const accent = settings?.accent || '#0a84ff'
+
+  const [showAddCat, setShowAddCat] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+  const [newCatIcon, setNewCatIcon] = useState('🏷️')
+  const [newCatColor, setNewCatColor] = useState('#0a84ff')
+  const [catError, setCatError] = useState('')
+
+  const handleAddCategory = () => {
+    const name = newCatName.trim()
+    if (!name) { setCatError('Podaj nazwę kategorii'); return }
+    if ([...CATEGORIES, ...customCategories].some((c) => c.label.toLowerCase() === name.toLowerCase())) {
+      setCatError('Kategoria o tej nazwie już istnieje')
+      return
+    }
+    addCustomCategory({ label: name, icon: newCatIcon, color: newCatColor })
+    setNewCatName(''); setNewCatIcon('🏷️'); setNewCatColor('#0a84ff'); setCatError(''); setShowAddCat(false)
+  }
 
   const [authTab, setAuthTab] = useState('google')
   const [authAction, setAuthAction] = useState('login')
@@ -328,6 +349,93 @@ export default function Settings() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Własne kategorie */}
+      <div className={styles.section}>
+        <p className={styles.sectionLabel}>Własne kategorie</p>
+        <div className={styles.group}>
+          {customCategories.length === 0 && !showAddCat && (
+            <div className={styles.row}>
+              <p className={styles.rowValue} style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>
+                Brak własnych kategorii
+              </p>
+            </div>
+          )}
+          {customCategories.map((cat, i) => (
+            <React.Fragment key={cat.id}>
+              {i > 0 && <div className={styles.rowSeparator} />}
+              <div className={styles.row}>
+                <div className={styles.catIconBadge} style={{ background: cat.color + '22' }}>
+                  <span>{cat.icon}</span>
+                </div>
+                <div className={styles.rowLeft}>
+                  <p className={styles.rowTitle}>{cat.label}</p>
+                </div>
+                <button className={styles.catDeleteBtn} onClick={() => deleteCustomCategory(cat.id)}>✕</button>
+              </div>
+            </React.Fragment>
+          ))}
+
+          {showAddCat && (
+            <div className={styles.addCatForm}>
+              <div className={styles.catIconPicker}>
+                {CAT_ICONS.map((ic) => (
+                  <button
+                    key={ic}
+                    className={`${styles.catIconBtn} ${newCatIcon === ic ? styles.catIconBtnActive : ''}`}
+                    onClick={() => setNewCatIcon(ic)}
+                  >
+                    {ic}
+                  </button>
+                ))}
+              </div>
+              <div className={styles.catColorPicker}>
+                {CAT_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    className={`${styles.catColorBtn} ${newCatColor === c ? styles.catColorBtnActive : ''}`}
+                    style={{ background: c }}
+                    onClick={() => setNewCatColor(c)}
+                  />
+                ))}
+              </div>
+              <input
+                className={styles.authInput}
+                type="text"
+                placeholder="Nazwa kategorii"
+                value={newCatName}
+                onChange={(e) => { setNewCatName(e.target.value); setCatError('') }}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+                autoFocus
+              />
+              {catError && <p className={styles.authError}>{catError}</p>}
+              <div className={styles.addCatActions}>
+                <button className={styles.authSubmitBtn} style={{ flex: 1 }} onClick={handleAddCategory}>
+                  Dodaj
+                </button>
+                <button
+                  className={styles.addCatCancelBtn}
+                  onClick={() => { setShowAddCat(false); setNewCatName(''); setCatError('') }}
+                >
+                  Anuluj
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!showAddCat && (
+            <>
+              {customCategories.length > 0 && <div className={styles.rowSeparator} />}
+              <button className={styles.addCatBtn} onClick={() => setShowAddCat(true)}>
+                + Dodaj kategorię
+              </button>
+            </>
+          )}
+        </div>
+        <p className={styles.sectionNote}>
+          Własne kategorie pojawiają się obok standardowych przy dodawaniu wydatków.
+        </p>
       </div>
 
       {/* Profil */}

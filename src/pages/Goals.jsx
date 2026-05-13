@@ -33,12 +33,36 @@ export default function Goals() {
   const [name, setName] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
-  const [deadline, setDeadline] = useState('')
+  const [deadlineYear, setDeadlineYear] = useState('')
+  const [deadlineMonthIdx, setDeadlineMonthIdx] = useState('')
   const [icon, setIcon] = useState('🎯')
   const [color, setColor] = useState('#0a84ff')
   const [error, setError] = useState('')
 
   const now = new Date()
+  const curYear = now.getFullYear()
+  const curMonth = now.getMonth()
+
+  const deadline = deadlineYear && deadlineMonthIdx !== ''
+    ? `${deadlineYear}-${String(Number(deadlineMonthIdx) + 1).padStart(2, '0')}`
+    : ''
+
+  const deadlineYearOptions = []
+  for (let y = curYear; y <= curYear + 10; y++) {
+    if (y > curYear || curMonth < 11) deadlineYearOptions.push(y)
+  }
+
+  const deadlineMonthOptions = MONTH_NAMES
+    .map((label, idx) => ({ label, idx }))
+    .filter(({ idx }) => !deadlineYear || Number(deadlineYear) > curYear || idx > curMonth)
+
+  const handleDeadlineYearChange = (e) => {
+    const yr = e.target.value
+    setDeadlineYear(yr)
+    if (yr === String(curYear) && deadlineMonthIdx !== '' && Number(deadlineMonthIdx) <= curMonth) {
+      setDeadlineMonthIdx('')
+    }
+  }
 
   const recurringTotal = getMonthlyRecurringTotal()
 
@@ -85,7 +109,7 @@ export default function Goals() {
       icon,
       color,
     })
-    setName(''); setTargetAmount(''); setCurrentAmount(''); setDeadline(''); setIcon('🎯'); setColor('#0a84ff'); setError(''); setShowForm(false)
+    setName(''); setTargetAmount(''); setCurrentAmount(''); setDeadlineYear(''); setDeadlineMonthIdx(''); setIcon('🎯'); setColor('#0a84ff'); setError(''); setShowForm(false)
   }
 
   const handleDeposit = (goalId) => {
@@ -155,7 +179,28 @@ export default function Goals() {
           <input className={styles.input} type="text" placeholder="Nazwa celu (np. Auto, Wakacje, Mieszkanie)" value={name} onChange={(e) => setName(e.target.value)} />
           <input className={styles.input} type="number" inputMode="decimal" placeholder="Kwota docelowa (PLN)" value={targetAmount} onChange={(e) => setTargetAmount(e.target.value)} />
           <input className={styles.input} type="number" inputMode="decimal" placeholder="Już odłożone (opcjonalnie)" value={currentAmount} onChange={(e) => setCurrentAmount(e.target.value)} />
-          <input className={styles.input} type="month" placeholder="Termin (opcjonalnie)" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+          <div className={styles.deadlinePicker}>
+            <select
+              className={styles.deadlineSelect}
+              value={deadlineMonthIdx}
+              onChange={(e) => setDeadlineMonthIdx(e.target.value)}
+            >
+              <option value="">Miesiąc</option>
+              {deadlineMonthOptions.map(({ label, idx }) => (
+                <option key={idx} value={idx}>{label}</option>
+              ))}
+            </select>
+            <select
+              className={styles.deadlineSelect}
+              value={deadlineYear}
+              onChange={handleDeadlineYearChange}
+            >
+              <option value="">Rok</option>
+              {deadlineYearOptions.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
 
           {deadline && targetAmount && Number(targetAmount) > 0 && (
             <div className={styles.deadlineHint}>

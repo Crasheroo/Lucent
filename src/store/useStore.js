@@ -100,6 +100,15 @@ const useStore = create(
           categoryBudgets: { ...s.categoryBudgets, [category]: amount },
         })),
 
+      // === WŁASNE KATEGORIE ===
+      customCategories: [],
+      addCustomCategory: (cat) =>
+        set((s) => ({
+          customCategories: [...s.customCategories, { ...cat, id: 'custom_' + Date.now() }],
+        })),
+      deleteCustomCategory: (id) =>
+        set((s) => ({ customCategories: s.customCategories.filter((c) => c.id !== id) })),
+
       // === CELE OSZCZĘDNOŚCIOWE ===
       goals: [],
       addGoal: (goal) =>
@@ -131,6 +140,7 @@ const useStore = create(
         goals: [],
         monthlySalaries: [],
         categoryBudgets: {},
+        customCategories: [],
         user: null,
         syncing: false,
       }),
