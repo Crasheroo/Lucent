@@ -33,6 +33,21 @@
 
 .addBtn:active { transform: scale(0.9); }
 
+.importBtn {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-tertiary);
+  border: 0.5px solid var(--separator);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.importBtn:active { background: var(--bg-quaternary); }
+
 .searchWrap {
   display: flex;
   align-items: center;
