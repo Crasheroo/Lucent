@@ -14,7 +14,20 @@
   overflow-x: hidden;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.syncErrorBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 68, 58, 0.12);
+  border-bottom: 0.5px solid rgba(255, 68, 58, 0.3);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-red);
 }
 
 /* ── Mobile tab bar ── */

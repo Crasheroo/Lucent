@@ -1,19 +1,43 @@
 {
-  "name": "Lucent",
+  "name": "Lucent — Finanse osobiste",
   "short_name": "Lucent",
-  "description": "Twój osobisty asystent finansowy",
+  "description": "Śledź wydatki, cele oszczędnościowe i stałe płatności. Twój osobisty asystent finansowy.",
   "start_url": "/Lucent/",
   "scope": "/Lucent/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
+  "lang": "pl",
+  "categories": ["finance", "productivity"],
   "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/logo.png",
       "sizes": "1254x1254",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Dodaj wydatek",
+      "short_name": "Wydatek",
+      "description": "Szybko dodaj nowy wydatek",
+      "url": "/Lucent/add-expense",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
 }

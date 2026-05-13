@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { signInWithPopup, signOut } from 'firebase/auth'
 import useStore from '../store/useStore.js'
 import { CATEGORIES } from '../utils/constants.js'
@@ -455,6 +455,24 @@ export default function Settings() {
           </div>
         </div>
         <p className={styles.sectionNote}>Domyślna wypłata używana gdy nie wpisano kwoty na dany miesiąc.</p>
+      </div>
+
+      {/* Prawne */}
+      <div className={styles.section}>
+        <p className={styles.sectionLabel}>Informacje prawne</p>
+        <div className={styles.group}>
+          <Link to="/privacy" style={{ textDecoration: 'none' }}>
+            <div className={styles.row}>
+              <p className={styles.rowTitle}>Polityka prywatności</p>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--text-tertiary)', flexShrink: 0 }}>
+                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </Link>
+        </div>
+        <p className={styles.sectionNote} style={{ textAlign: 'center', paddingTop: 20, paddingBottom: 8 }}>
+          Lucent v1.0.0
+        </p>
       </div>
     </div>
   )

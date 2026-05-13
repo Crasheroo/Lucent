@@ -4,13 +4,30 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+    <!-- PWA / iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Lucent" />
-    <meta name="theme-color" content="#000000" />
-    <title>Lucent</title>
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)" />
+
+    <!-- SEO / Social -->
+    <meta name="description" content="Śledź wydatki, cele oszczędnościowe i stałe płatności. Twój osobisty asystent finansowy." />
+    <meta name="application-name" content="Lucent" />
+    <meta property="og:title" content="Lucent — Finanse osobiste" />
+    <meta property="og:description" content="Śledź wydatki, cele oszczędnościowe i stałe płatności." />
+    <meta property="og:type" content="website" />
+
+    <!-- Icons -->
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="manifest" href="/manifest.json" />
+
+    <title>Lucent</title>
+
     <script>
       // GitHub Pages SPA fix — przywróć ścieżkę po przekierowaniu z 404.html
       (function() {

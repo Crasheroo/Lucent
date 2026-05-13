@@ -6,12 +6,37 @@ import styles from './Expenses.module.css'
 
 export default function Expenses() {
   const navigate = useNavigate()
-  const { expenses, deleteExpense, customCategories } = useStore()
+  const { expenses, deleteExpense, editExpense, customCategories } = useStore()
   const allCategories = [...CATEGORIES, ...customCategories]
   const getCat = (id) => allCategories.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1]
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [swipedId, setSwipedId] = useState(null)
+  const [editingExpense, setEditingExpense] = useState(null)
+  const [editAmount, setEditAmount] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [editCategory, setEditCategory] = useState('')
+  const [editDate, setEditDate] = useState('')
+
+  const openEdit = (e) => {
+    setEditingExpense(e)
+    setEditAmount(String(e.amount))
+    setEditDesc(e.description || '')
+    setEditCategory(e.category)
+    setEditDate(new Date(e.date).toISOString().split('T')[0])
+    setSwipedId(null)
+  }
+
+  const saveEdit = () => {
+    if (!editAmount || isNaN(Number(editAmount)) || Number(editAmount) <= 0) return
+    editExpense(editingExpense.id, {
+      amount: Number(editAmount),
+      description: editDesc.trim() || getCat(editCategory)?.label || 'Wydatek',
+      category: editCategory,
+      date: new Date(editDate).toISOString(),
+    })
+    setEditingExpense(null)
+  }
 
   const filtered = useMemo(() => {
     return expenses.filter((e) => {
@@ -119,16 +144,24 @@ export default function Expenses() {
                       <div className={styles.expenseRight}>
                         <p className={styles.expenseAmount}>-{formatCurrency(e.amount)}</p>
                         {swipedId === e.id && (
-                          <button
-                            className={styles.deleteBtn}
-                            onClick={(ev) => {
-                              ev.stopPropagation()
-                              deleteExpense(e.id)
-                              setSwipedId(null)
-                            }}
-                          >
-                            Usuń
-                          </button>
+                          <>
+                            <button
+                              className={styles.editBtn}
+                              onClick={(ev) => { ev.stopPropagation(); openEdit(e) }}
+                            >
+                              Edytuj
+                            </button>
+                            <button
+                              className={styles.deleteBtn}
+                              onClick={(ev) => {
+                                ev.stopPropagation()
+                                deleteExpense(e.id)
+                                setSwipedId(null)
+                              }}
+                            >
+                              Usuń
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -139,6 +172,68 @@ export default function Expenses() {
           ))
         )}
       </div>
+
+      {/* Edit modal */}
+      {editingExpense && (
+        <div className={styles.editOverlay} onClick={() => setEditingExpense(null)}>
+          <div className={styles.editSheet} onClick={(e) => e.stopPropagation()}>
+            <p className={styles.editSheetTitle}>Edytuj wydatek</p>
+
+            <div className={styles.editField}>
+              <label className={styles.editLabel}>Kwota (PLN)</label>
+              <input
+                className={styles.editInput}
+                type="number"
+                inputMode="decimal"
+                value={editAmount}
+                onChange={(e) => setEditAmount(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className={styles.editField}>
+              <label className={styles.editLabel}>Opis</label>
+              <input
+                className={styles.editInput}
+                type="text"
+                value={editDesc}
+                onChange={(e) => setEditDesc(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.editField}>
+              <label className={styles.editLabel}>Data</label>
+              <input
+                className={styles.editInput}
+                type="date"
+                value={editDate}
+                onChange={(e) => setEditDate(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.editField}>
+              <label className={styles.editLabel}>Kategoria</label>
+              <div className={styles.editCategories}>
+                {allCategories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    className={`${styles.editCatBtn} ${editCategory === cat.id ? styles.editCatBtnActive : ''}`}
+                    style={editCategory === cat.id ? { borderColor: cat.color, background: cat.color + '22', color: cat.color } : {}}
+                    onClick={() => setEditCategory(cat.id)}
+                  >
+                    {cat.icon} {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.editActions}>
+              <button className={styles.editSaveBtn} onClick={saveEdit}>Zapisz</button>
+              <button className={styles.editCancelBtn} onClick={() => setEditingExpense(null)}>Anuluj</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

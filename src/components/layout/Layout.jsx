@@ -70,7 +70,7 @@ const settingsIcon = (active) => (
   </svg>
 )
 
-export default function Layout() {
+export default function Layout({ syncError }) {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -100,10 +100,7 @@ export default function Layout() {
                 onClick={() => navigate(tab.path)}
               >
                 <span className={styles.sidebarItemIcon}>{tab.icon(active)}</span>
-                <span
-                  className={styles.sidebarItemLabel}
-                  style={{ color: active ? AC : IN }}
-                >
+                <span className={styles.sidebarItemLabel} style={{ color: active ? AC : IN }}>
                   {tab.label}
                 </span>
               </button>
@@ -117,10 +114,7 @@ export default function Layout() {
             onClick={() => navigate('/settings')}
           >
             <span className={styles.sidebarItemIcon}>{settingsIcon(settingsActive)}</span>
-            <span
-              className={styles.sidebarItemLabel}
-              style={{ color: settingsActive ? AC : IN }}
-            >
+            <span className={styles.sidebarItemLabel} style={{ color: settingsActive ? AC : IN }}>
               Ustawienia
             </span>
           </button>
@@ -129,7 +123,15 @@ export default function Layout() {
 
       {/* Main content */}
       <div className={styles.content}>
-        <Outlet />
+        {syncError && (
+          <div className={styles.syncErrorBanner}>
+            <span>⚠️</span>
+            <span>Błąd synchronizacji. Sprawdź połączenie.</span>
+          </div>
+        )}
+        <div key={location.pathname} className="animate-fadeIn">
+          <Outlet />
+        </div>
       </div>
 
       {/* Mobile tab bar */}

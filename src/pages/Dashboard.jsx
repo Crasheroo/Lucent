@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore.js'
-import { formatCurrency, getCategoryById, formatDate, MONTH_NAMES } from '../utils/constants.js'
+import { CATEGORIES, formatCurrency, formatDate, MONTH_NAMES } from '../utils/constants.js'
 import styles from './Dashboard.module.css'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { profile, expenses, recurring, goals, monthlySalaries, getCurrentMonthExpenses, getMonthlyRecurringTotal, getSalaryForMonth, setMonthlySalary } = useStore()
+  const { profile, expenses, recurring, goals, monthlySalaries, customCategories, getCurrentMonthExpenses, getMonthlyRecurringTotal, getSalaryForMonth, setMonthlySalary } = useStore()
+  const allCategories = [...CATEGORIES, ...(customCategories || [])]
+  const getCat = (id) => allCategories.find((c) => c.id === id) || CATEGORIES[CATEGORIES.length - 1]
 
   const [editingSalary, setEditingSalary] = useState(false)
   const [salaryInput, setSalaryInput] = useState('')
@@ -193,7 +195,7 @@ export default function Dashboard() {
         ) : (
           <div className={styles.expenseList}>
             {recentExpenses.map((e) => {
-              const cat = getCategoryById(e.category)
+              const cat = getCat(e.category)
               return (
                 <div key={e.id} className={styles.expenseRow}>
                   <div className={styles.expenseCat} style={{ background: cat.color + '22' }}>

@@ -10,7 +10,8 @@ import styles from './Analytics.module.css'
 const CHART_COLORS = ['#0a84ff', '#30d158', '#ff9f0a', '#ff453a', '#bf5af2', '#5ac8fa', '#ff6b35', '#5e5ce6', '#34c759', '#ffd60a', '#64d2ff', '#98989e']
 
 export default function Analytics() {
-  const { expenses, profile, getMonthlyRecurringTotal, getSalaryForMonth } = useStore()
+  const { expenses, customCategories, getMonthlyRecurringTotal, getSalaryForMonth } = useStore()
+  const allCategories = [...CATEGORIES, ...(customCategories || [])]
   const [activeTab, setActiveTab] = useState('categories')
   const now = new Date()
 
@@ -26,7 +27,7 @@ export default function Analytics() {
     monthExpenses.forEach((e) => {
       map[e.category] = (map[e.category] || 0) + e.amount
     })
-    return CATEGORIES
+    return allCategories
       .filter((c) => map[c.id])
       .map((c) => ({ name: c.label, value: map[c.id], icon: c.icon, color: c.color }))
       .sort((a, b) => b.value - a.value)

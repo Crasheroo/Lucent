@@ -198,6 +198,122 @@
   cursor: pointer;
 }
 
+.editBtn {
+  background: rgba(10, 132, 255, 0.12);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  color: var(--accent-blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+}
+
+/* Edit modal overlay */
+.editOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.editSheet {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+  padding: 20px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: slideUp 0.25s ease;
+}
+
+.editSheetTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.editLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.editInput {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--separator-opaque);
+  border-radius: var(--border-radius-sm);
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.editInput:focus { border-color: var(--accent-blue); }
+
+.editCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.editCatBtn {
+  padding: 6px 12px;
+  border-radius: var(--border-radius-full);
+  background: var(--bg-tertiary);
+  border: 1.5px solid transparent;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.editCatBtnActive {
+  color: var(--text-primary);
+}
+
+.editActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.editSaveBtn {
+  flex: 1;
+  padding: 13px;
+  background: var(--accent-blue);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+}
+
+.editCancelBtn {
+  padding: 13px 20px;
+  background: var(--bg-tertiary);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--border-radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
 .empty {
   display: flex;
   flex-direction: column;
