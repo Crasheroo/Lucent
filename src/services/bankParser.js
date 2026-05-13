@@ -1,68 +1,36 @@
-const PL_MAP = {
-  'ą':'a','ć':'c','ę':'e','ł':'l','ń':'n','ó':'o','ś':'s','ź':'z','ż':'z',
-  'Ą':'a','Ć':'c','Ę':'e','Ł':'l','Ń':'n','Ó':'o','Ś':'s','Ź':'z','Ż':'z',
-}
-const normalize = (s) => s.toLowerCase().replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, c => PL_MAP[c] || c)
-
-// ── mBank bank-provided categories → app categories ──────────
-const MBANK_CAT_MAP = {
-  'zywnosc i chemia domowa':    'food',
-  'jedzenie poza domem':        'restaurants',
-  'przejazdy':                  'transport',
-  'paliwo':                     'transport',
-  'zdrowie i uroda':            'health',
-  'tv, internet, telefon':      'subscriptions',
-  'multimedia, ksiazki i prasa':'entertainment',
-  'elektronika':                'shopping',
-  'akcesoria i wyposazenie':    'shopping',
-  'akcesoria i wyposazenie ':   'shopping',
-  'odziez i obuwie':            'shopping',
-  'wyjscia i wydarzenia':       'entertainment',
-  'podroze i wyjazdy':          'travel',
-  'sport i rekreacja':          'fitness',
-  'edukacja':                   'education',
-  'regularne oszczedzanie':     'other',
-  'przelew wlasny':             'other',
-  'bez kategorii':              'other',
-  'wplywy - inne':              'other',
-  'lokaty i konto oszcz.':      'other',
-  'prezenty i wsparcie':        'other',
-}
-
-function mbankCategory(bankCat) {
-  const n = normalize(bankCat.trim())
-  return MBANK_CAT_MAP[n] || guessCategory(bankCat) || 'other'
-}
-
-// ── Keyword fallback for banks without category column ────────
+// ── Category guessing by merchant keywords ────────────────────
 const KEYWORDS = {
-  food:          ['biedronka','lidl','kaufland','zabka','auchan','carrefour','tesco','netto','stokrotka','spar','delikatesy','piotr i pawel','intermarche','spozywczy','lewiatan','polomarket','freshmarket'],
-  restaurants:   ['mcdonald','kfc','burger king','subway','pizza','restauracja','bar mleczny','kebab','sushi','dominos','papaj','north fish','kawiarnia','cafe ','coffee','starbucks','costa','pyszne'],
-  transport:     ['uber','bolt','pkp','mzk','mpk','ztm','mkm','paliwo','orlen','shell','circle k','lotos','bp ','parking','myjnia','autostrada','viatoll','e-toll','pks','flixbus','polskibus','wizzair','ryanair','lot ','jakdojade'],
-  entertainment: ['cinema city','multikino','helios','steam','epic games','playstation','xbox','nintendo','bilety','teatr','muzeum','zoo ','escape room','hellcase','totalcasino','casino'],
-  subscriptions: ['netflix','spotify','hbo','disney','apple','google play','youtube premium','tidal','deezer','microsoft','adobe','canva','chatgpt','openai','notion','dropbox'],
-  shopping:      ['allegro','amazon','zalando','empik','media markt','rtv euro agd','ikea','leroy merlin','castorama','obi ','jysk','h&m','zara','reserved','mohito','sinsay','cropp','aliexpress'],
-  health:        ['apteka','dr max','rossmann','dbam o zdrowie','medicover','luxmed','lux med','nfz','szpital','klinika','stomatol','dentysta','optyk','hebe'],
-  utilities:     ['tauron','pge ','enea','energa','fortum','innogy','miejskie','czynsz','woda','gaz','pgnig'],
-  fitness:       ['silownia','gym','fitness','zdrofit','calypso','multisport','cityfit','mcfit'],
-  education:     ['uczelnia','szkola','kurs ','udemy','coursera'],
-  travel:        ['hotel','booking','airbnb','lot ','wizzair','ryanair','lotnisko'],
+  food:          ['biedronka','lidl','kaufland','zabka','auchan','carrefour','tesco','netto','stokrotka','spar','delikatesy','piotr i pawel','intermarche','spozywczy','lewiatan','polomarket','freshmarket','aldi','rewe','edeka','albert','albert heijn','ica','coop','migros','denner','penny','hofer','billa','mercadona','dia ','leclerc'],
+  restaurants:   ['mcdonald','kfc','burger king','subway','pizza','restauracja','bar mleczny','kebab','sushi','dominos','kawiarnia','cafe ','coffee','starbucks','costa','pyszne','deliveroo','uber eats','just eat','wolt','glovo','restaurant','bistro'],
+  transport:     ['uber','bolt','pkp','mzk','mpk','ztm','paliwo','orlen','shell','circle k','lotos','bp ','parking','autostrada','e-toll','flixbus','wizzair','ryanair','easyjet','lot ','lufthansa','klm','db bahn','renfe','sncf','trenitalia','ns ','obb'],
+  entertainment: ['cinema','multikino','helios','steam','epic games','playstation','xbox','nintendo','bilety','teatr','muzeum','escape room','totalcasino','casino','spotify','netflix','hbo','disney','prime video','apple tv','crunchyroll'],
+  subscriptions: ['netflix','spotify','hbo','disney','apple','google play','youtube premium','tidal','deezer','microsoft','adobe','canva','chatgpt','openai','notion','dropbox','icloud','lastpass','nordvpn'],
+  shopping:      ['allegro','amazon','zalando','empik','media markt','rtv euro agd','ikea','leroy merlin','castorama','jysk','h&m','zara','reserved','aliexpress','ebay','shein','asos','aboutyou','otto ','fnac'],
+  health:        ['apteka','pharmacy','apotheke','rossmann','hebe','drogeria','leki','dr max','medicover','luxmed','szpital','hospital','klinika','dentysta','dentist','optyk','dm ','boots '],
+  utilities:     ['tauron','pge ','enea','energa','innogy','czynsz','woda','gaz','pgnig','edf ','engie','vattenfall','strom','stade'],
+  fitness:       ['silownia','gym','fitness','zdrofit','calypso','multisport','cityfit','mcfit','basic-fit','holmes place','anytime fitness'],
+  education:     ['uczelnia','szkola','udemy','coursera','linkedin learning','skillshare','duolingo'],
+  travel:        ['hotel','booking','airbnb','wizzair','ryanair','lotnisko','airport','marriott','hilton','ibis','novotel','accor'],
 }
 
 function guessCategory(text) {
-  const n = normalize(text)
+  const n = text.toLowerCase()
   for (const [cat, kws] of Object.entries(KEYWORDS)) {
     if (kws.some((kw) => n.includes(kw))) return cat
   }
   return 'other'
 }
 
-function parseAmount(str) {
-  return parseFloat(
-    str.replace(/\s/g, '').replace('PLN', '').replace('zł', '').replace(',', '.')
-  )
+// ── Text helpers ─────────────────────────────────────────────
+const clean = (s) => (s || '').replace(/"/g, '').trim()
+
+function extractMerchantName(raw) {
+  const s = raw.trim()
+  const m = s.match(/^(.+?)(?:\s{2,}|$)/)
+  return m ? m[1].trim() : s.slice(0, 60).trim()
 }
 
+// Quote-aware CSV line splitter
 function splitLine(line, sep) {
   const result = []
   let cur = ''
@@ -76,38 +44,164 @@ function splitLine(line, sep) {
   return result
 }
 
-const clean = (s) => (s || '').replace(/"/g, '').trim()
-
-// Extract merchant name — text before double-space or operation keywords
-function extractMerchantName(raw) {
-  const s = raw.trim()
-  const m = s.match(/^(.+?)(?:\s{2,}|$)/)
-  return m ? m[1].trim() : s.slice(0, 60).trim()
+// ── Date detection — handles multiple formats ─────────────────
+function parseDate(str) {
+  const s = clean(str)
+  // YYYY-MM-DD (with optional time)
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`
+  // DD.MM.YYYY or DD/MM/YYYY or DD-MM-YYYY
+  m = s.match(/^(\d{2})[./\-](\d{2})[./\-](\d{4})/)
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`
+  // M/D/YYYY or MM/DD/YYYY (US format — only when day > 12 makes format unambiguous)
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+  if (m) return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`
+  return null
 }
 
-// ── mBank ────────────────────────────────────────────────────
-// Format: #Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
-// cols:       0              1              2          3        4
+// ── Amount detection — handles international formats ──────────
+function parseAmount(str) {
+  // Strip currency symbols and whitespace
+  let s = clean(str).replace(/[€$£¥₹zł\sPLNCHFSEKNOKCZKGBPUSD]/g, '').trim()
+  if (!s || s === '-' || s === '+') return null
+  // Detect separator convention:
+  // 1.234,56 → European (dot=thousands, comma=decimal)
+  // 1,234.56 → US (comma=thousands, dot=decimal)
+  // 1234,56  → PL/DE shorthand (no thousands, comma=decimal)
+  // 1234.56  → standard
+  const dotIdx   = s.lastIndexOf('.')
+  const commaIdx = s.lastIndexOf(',')
+  if (commaIdx > dotIdx) {
+    // comma is decimal separator: 1.234,56 or 1234,56
+    s = s.replace(/\./g, '').replace(',', '.')
+  } else if (dotIdx > commaIdx) {
+    // dot is decimal separator: 1,234.56 or 1234.56
+    s = s.replace(/,/g, '')
+  }
+  const n = parseFloat(s)
+  return isNaN(n) ? null : n
+}
+
+// ── Smart universal CSV parser ────────────────────────────────
+// Detects columns by data content — works for any bank, any language
+function parseSmartCSV(lines) {
+  const SEPARATORS = [';', ',', '\t']
+
+  for (const sep of SEPARATORS) {
+    // Scan first 25 lines to find where tabular data begins
+    for (let hi = 0; hi < Math.min(lines.length - 3, 25); hi++) {
+      const rawHeader = splitLine(lines[hi], sep)
+      if (rawHeader.length < 2) continue
+
+      // Collect data rows that match column count
+      const dataRows = []
+      for (let j = hi + 1; j < Math.min(hi + 15, lines.length); j++) {
+        const cols = splitLine(lines[j], sep)
+        if (cols.length >= rawHeader.length) dataRows.push(cols)
+      }
+      if (dataRows.length < 2) continue
+
+      // Classify each column: 'date' | 'amount' | 'text'
+      const colTypes = rawHeader.map((_, ci) => {
+        const vals = dataRows.map((r) => clean(r[ci] || ''))
+        const dateHits = vals.filter((v) => parseDate(v) !== null).length
+        const amtHits  = vals.filter((v) => parseAmount(v) !== null).length
+        if (dateHits  >= dataRows.length * 0.6) return 'date'
+        if (amtHits   >= dataRows.length * 0.6) return 'amount'
+        return 'text'
+      })
+
+      const iDate = colTypes.indexOf('date')
+      // Prefer the LAST amount column — in many bank exports the final column is net amount
+      let iAmt = -1
+      for (let ci = colTypes.length - 1; ci >= 0; ci--) {
+        if (colTypes[ci] === 'amount' && ci !== iDate) { iAmt = ci; break }
+      }
+      if (iDate === -1 || iAmt === -1) continue
+
+      // Find best description column: longest average text that isn't date/amount
+      let iDesc = -1, maxLen = 0
+      colTypes.forEach((type, ci) => {
+        if (type !== 'text') return
+        const avg = dataRows.reduce((s, r) => s + clean(r[ci] || '').length, 0) / dataRows.length
+        if (avg > maxLen) { maxLen = avg; iDesc = ci }
+      })
+
+      // Parse all rows
+      const result = []
+      for (let i = hi + 1; i < lines.length; i++) {
+        const cols = splitLine(lines[i], sep)
+        if (cols.length <= Math.max(iDate, iAmt)) continue
+        const dateIso = parseDate(clean(cols[iDate]))
+        if (!dateIso) continue
+        const date = new Date(dateIso)
+        if (isNaN(date.getTime())) continue
+        const amount = parseAmount(clean(cols[iAmt]))
+        if (amount === null || amount === 0) continue
+        const rawDesc = iDesc >= 0 ? clean(cols[iDesc]) : ''
+        const desc = extractMerchantName(rawDesc) || 'Import'
+        result.push({
+          date: date.toISOString(),
+          description: desc,
+          amount: Math.abs(amount),
+          rawAmount: amount,
+          category: guessCategory(desc + ' ' + rawDesc),
+          isExpense: amount < 0,
+        })
+      }
+      if (result.length > 0) return result
+    }
+  }
+  return null
+}
+
+// ── mBank-specific parser (uses bank's own categories) ────────
+// Kept because mBank provides better category data than keyword guessing
+const PL_MAP = { ą:'a',ć:'c',ę:'e',ł:'l',ń:'n',ó:'o',ś:'s',ź:'z',ż:'z',Ą:'a',Ć:'c',Ę:'e',Ł:'l',Ń:'n',Ó:'o',Ś:'s',Ź:'z',Ż:'z' }
+const normPl = (s) => s.toLowerCase().replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, c => PL_MAP[c] || c)
+
+const MBANK_CAT_MAP = {
+  'zywnosc i chemia domowa':    'food',
+  'jedzenie poza domem':        'restaurants',
+  'przejazdy':                  'transport',
+  'paliwo':                     'transport',
+  'zdrowie i uroda':            'health',
+  'tv, internet, telefon':      'subscriptions',
+  'multimedia, ksiazki i prasa':'entertainment',
+  'elektronika':                'shopping',
+  'akcesoria i wyposazenie':    'shopping',
+  'odziez i obuwie':            'shopping',
+  'wyjscia i wydarzenia':       'entertainment',
+  'podroze i wyjazdy':          'travel',
+  'sport i rekreacja':          'fitness',
+  'edukacja':                   'education',
+  'regularne oszczedzanie':     'other',
+  'przelew wlasny':             'other',
+  'bez kategorii':              'other',
+  'wplywy - inne':              'other',
+  'lokaty i konto oszcz.':      'other',
+  'prezenty i wsparcie':        'other',
+}
+
 function parseMbank(lines) {
   const hi = lines.findIndex((l) => l.includes('#Data operacji'))
   if (hi === -1) return null
   const result = []
   for (let i = hi + 1; i < lines.length; i++) {
-    const line = lines[i]
-    if (!line) continue
-    const cols = splitLine(line, ';')
+    const cols = splitLine(lines[i], ';')
     if (cols.length < 5) continue
     const dateStr = clean(cols[0])
-    if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) continue  // skip metadata rows
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) continue
     const rawDesc = clean(cols[1])
     const bankCat = clean(cols[3])
-    const amtStr  = clean(cols[4])
+    const amount  = parseAmount(clean(cols[4]))
+    if (amount === null || amount === 0) continue
     const date = new Date(dateStr)
     if (isNaN(date.getTime())) continue
-    const amount = parseAmount(amtStr)
-    if (isNaN(amount) || amount === 0) continue
     const desc = extractMerchantName(rawDesc) || bankCat || 'Import'
-    const category = bankCat ? mbankCategory(bankCat) : guessCategory(rawDesc)
+    const category = bankCat
+      ? (MBANK_CAT_MAP[normPl(bankCat.trim())] || guessCategory(rawDesc))
+      : guessCategory(rawDesc)
     result.push({
       date: date.toISOString(),
       description: desc,
@@ -120,133 +214,18 @@ function parseMbank(lines) {
   return result.length > 0 ? result : null
 }
 
-// ── PKO BP ────────────────────────────────────────────────────
-// Finds header dynamically via column names
-function parsePkoBp(lines) {
-  const hi = lines.findIndex((l) =>
-    l.includes('"Data operacji"') || (l.includes('Data operacji') && l.includes('Kwota'))
-  )
-  if (hi === -1) return null
-  const header = splitLine(lines[hi], ',').map((c) => normalize(clean(c)))
-  const iDate  = header.findIndex((h) => h.includes('data operacji'))
-  const iAmt   = header.findIndex((h) => h === 'kwota')
-  const iDesc  = header.findIndex((h) => h.includes('tytul') || h.includes('tytu') || h.includes('opis'))
-  const iPayee = header.findIndex((h) => h.includes('kontrahent') || h.includes('dane'))
-  if (iDate === -1 || iAmt === -1) return null
-  const result = []
-  for (let i = hi + 1; i < lines.length; i++) {
-    const line = lines[i]
-    if (!line) continue
-    const cols = splitLine(line, ',')
-    if (cols.length < Math.max(iDate, iAmt) + 1) continue
-    const dateStr = clean(cols[iDate])
-    const amtStr  = clean(cols[iAmt])
-    if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) continue
-    const desc = clean(cols[iDesc] ?? '') || clean(cols[iPayee] ?? '') || 'Import'
-    const date = new Date(dateStr)
-    if (isNaN(date.getTime())) continue
-    const amount = parseFloat(amtStr.replace(',', '.'))
-    if (isNaN(amount) || amount === 0) continue
-    result.push({
-      date: date.toISOString(),
-      description: desc,
-      amount: Math.abs(amount),
-      rawAmount: amount,
-      category: guessCategory(desc),
-      isExpense: amount < 0,
-    })
-  }
-  return result.length > 0 ? result : null
-}
-
-// ── ING Bank ──────────────────────────────────────────────────
-function parseIng(lines) {
-  const hi = lines.findIndex((l) => l.includes('Data transakcji'))
-  if (hi === -1) return null
-  const result = []
-  for (let i = hi + 1; i < lines.length; i++) {
-    const line = lines[i]
-    if (!line) continue
-    const cols = splitLine(line, ';')
-    if (cols.length < 9) continue
-    const dateStr = clean(cols[0])
-    if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) continue
-    const payee  = clean(cols[2])
-    const title  = clean(cols[3])
-    const amtStr = clean(cols[8])
-    const date = new Date(dateStr)
-    if (isNaN(date.getTime())) continue
-    const amount = parseAmount(amtStr)
-    if (isNaN(amount) || amount === 0) continue
-    const desc = extractMerchantName(title || payee) || 'Import'
-    result.push({
-      date: date.toISOString(),
-      description: desc,
-      amount: Math.abs(amount),
-      rawAmount: amount,
-      category: guessCategory(desc + ' ' + payee),
-      isExpense: amount < 0,
-    })
-  }
-  return result.length > 0 ? result : null
-}
-
-// ── Generic semicolon fallback (Santander, Millennium, etc.) ──
-function parseGenericSemicolon(lines) {
-  const hi = lines.findIndex((l) => {
-    const n = normalize(l)
-    return n.includes('data') && (n.includes('kwota') || n.includes('amount'))
-  })
-  if (hi === -1) return null
-  const header = splitLine(lines[hi], ';').map((c) => normalize(clean(c)))
-  const iDate = header.findIndex((h) => h.startsWith('data'))
-  const iAmt  = header.findIndex((h) => h.includes('kwota') || h.includes('amount'))
-  const iDesc = header.findIndex((h) => h.includes('tytul') || h.includes('opis'))
-  if (iDate === -1 || iAmt === -1) return null
-  const result = []
-  for (let i = hi + 1; i < lines.length; i++) {
-    const line = lines[i]
-    if (!line) continue
-    const cols = splitLine(line, ';')
-    if (cols.length < Math.max(iDate, iAmt) + 1) continue
-    const dateStr = clean(cols[iDate])
-    if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) continue
-    const amtStr = clean(cols[iAmt])
-    const desc   = iDesc >= 0 ? extractMerchantName(clean(cols[iDesc])) : 'Import'
-    const date = new Date(dateStr)
-    if (isNaN(date.getTime())) continue
-    const amount = parseAmount(amtStr)
-    if (isNaN(amount) || amount === 0) continue
-    result.push({
-      date: date.toISOString(),
-      description: desc || 'Import',
-      amount: Math.abs(amount),
-      rawAmount: amount,
-      category: guessCategory(desc),
-      isExpense: amount < 0,
-    })
-  }
-  return result.length > 0 ? result : null
-}
-
+// ── Entry point ───────────────────────────────────────────────
 export function parseBank(text) {
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
-  return (
-    parseMbank(lines) ||
-    parsePkoBp(lines) ||
-    parseIng(lines) ||
-    parseGenericSemicolon(lines) ||
-    null
-  )
+  // mBank first (uses its own category data — better than keyword guessing)
+  return parseMbank(lines) || parseSmartCSV(lines) || null
 }
 
 export async function readFileAsText(file) {
   const buffer = await file.arrayBuffer()
-  // Try UTF-8 first (handles BOM automatically)
   try {
     return new TextDecoder('utf-8', { fatal: true }).decode(buffer)
   } catch {}
-  // Fall back to Windows-1250 (older Polish bank exports)
   try {
     return new TextDecoder('windows-1250').decode(buffer)
   } catch {}

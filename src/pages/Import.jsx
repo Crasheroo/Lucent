@@ -153,18 +153,12 @@ export default function Import() {
 
         <div className={styles.infoCard}>
           <p className={styles.infoTitle}>{t.import.infoTitle}</p>
-          <div className={styles.infoRow}>
-            <span className={styles.infoBank}>mBank</span>
-            <span className={styles.infoStep}>{t.import.mBankStep}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoBank}>PKO BP</span>
-            <span className={styles.infoStep}>{t.import.pkoBpStep}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoBank}>ING</span>
-            <span className={styles.infoStep}>{t.import.ingStep}</span>
-          </div>
+          {[t.import.infoStep1, t.import.infoStep2, t.import.infoStep3].map((step, i) => (
+            <div key={i} className={styles.infoRow}>
+              <span className={styles.infoBank}>{i + 1}</span>
+              <span className={styles.infoStep}>{step}</span>
+            </div>
+          ))}
         </div>
       </div>
     )
